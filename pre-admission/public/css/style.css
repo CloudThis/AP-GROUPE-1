@@ -1,0 +1,21 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #f3f6fa; color: #1d2733; }
+.centre { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.carte { background: #fff; border: 1px solid #d8e0ea; border-radius: 10px; padding: 32px; width: 100%; max-width: 400px; }
+.carte h1 { margin: 0 0 4px; font-size: 1.5rem; color: #1c4f8a; }
+.sous-titre { margin: 0 0 24px; color: #5b6b7d; }
+label { display: block; font-weight: 600; margin: 14px 0 6px; }
+input[type=text], input[type=password] { width: 100%; padding: 10px; border: 1px solid #b9c6d6; border-radius: 6px; font-size: 1rem; }
+input:focus { outline: 2px solid #1c4f8a; outline-offset: 1px; }
+button { margin-top: 22px; width: 100%; padding: 11px; border: 0; border-radius: 6px; background: #1c4f8a; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; }
+button:hover { background: #163f6e; }
+.message { border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+.erreur { background: #fdecec; color: #a12622; border: 1px solid #f3b9b7; }
+.info { background: #e9f5ec; color: #1f6b35; border: 1px solid #b8dfc3; }
+header.barre { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: #1c4f8a; color: #fff; padding: 12px 20px; }
+.barre-droite { display: flex; align-items: center; gap: 16px; }
+.barre-droite form { margin: 0; }
+.bouton-clair { margin: 0; width: auto; padding: 8px 14px; background: #fff; color: #1c4f8a; }
+.bouton-clair:hover { background: #e6edf6; }
+main { padding: 28px 20px; max-width: 1000px; margin: 0 auto; }
+main h1 { margin: 0 0 8px; }
