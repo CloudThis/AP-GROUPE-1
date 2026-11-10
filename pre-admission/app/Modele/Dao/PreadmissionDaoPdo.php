@@ -49,6 +49,25 @@ final class PreadmissionDaoPdo
         ];
     }
 
+    // ------------------------------------------------------------ patient déjà connu
+
+    /** Patient déjà enregistré (recherche par numéro de sécurité sociale), avec sa couverture. */
+    public function trouverPatientParNir(string $nir): ?array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT p.*, c.id_organisme, c.regime, c.exoneration_ald,
+                    c.date_fin_droits, c.date_lecture_vitale, a.id_mutuelle, a.numero_adherent
+             FROM patient p
+             LEFT JOIN est_couvert_par c ON c.id_patient = p.id_patient
+             LEFT JOIN est_affilie a     ON a.id_patient = p.id_patient
+             WHERE p.numero_securite_sociale = :nir
+             LIMIT 1'
+        );
+        $requete->execute(['nir' => $nir]);
+        $ligne = $requete->fetch(PDO::FETCH_ASSOC);
+        return $ligne === false ? null : $ligne;
+    }
+
     // ------------------------------------------------------------ enregistrement
 
     /**
@@ -76,6 +95,7 @@ final class PreadmissionDaoPdo
         }
     }
 
+    /** Crée le patient, ou met à jour sa fiche s'il existe déjà (même numéro de sécurité sociale). */
     private function enregistrerPatient(array $patient): int
     {
         $valeurs = [];
@@ -83,6 +103,18 @@ final class PreadmissionDaoPdo
             $valeur = $patient[$colonne] ?? null;
             $valeurs[$colonne] = is_bool($valeur) ? (int) $valeur : $valeur;
         }
+
+        $recherche = $this->pdo->prepare('SELECT id_patient FROM patient WHERE numero_securite_sociale = :nir');
+        $recherche->execute(['nir' => $valeurs['numero_securite_sociale']]);
+        $idExistant = $recherche->fetchColumn();
+
+        if ($idExistant !== false) {
+            $affectations = implode(', ', array_map(fn($c) => "$c = :$c", self::COLONNES_PATIENT));
+            $requete = $this->pdo->prepare("UPDATE patient SET $affectations WHERE id_patient = :id_patient");
+            $requete->execute($valeurs + ['id_patient' => (int) $idExistant]);
+            return (int) $idExistant;
+        }
+
         $colonnes  = implode(', ', self::COLONNES_PATIENT);
         $marqueurs = implode(', ', array_map(fn($c) => ":$c", self::COLONNES_PATIENT));
         $this->pdo->prepare("INSERT INTO patient ($colonnes) VALUES ($marqueurs)")->execute($valeurs);

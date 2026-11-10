@@ -34,9 +34,18 @@ $mutuelles = array_column($ref['mutuelles'], 'nom', 'id');
 
   <?php if (!empty($erreur)): ?>
     <div class="message erreur" role="alert"><?= e($erreur) ?></div>
+  <?php elseif (!empty($info)): ?>
+    <div class="message info"><?= e($info) ?></div>
   <?php endif; ?>
 
-    <form method="post" action="index.php?page=preadmission_patient" novalidate>
+  <form class="recherche" method="post" action="index.php?page=preadmission_patient" novalidate>
+    <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+    <label for="recherche">Rechercher un patient existant</label>
+    <input type="text" id="recherche" name="recherche" placeholder="N° de sécurité sociale (13 chiffres)" inputmode="numeric" autocomplete="off">
+    <button type="submit" name="action" value="rechercher" class="bouton-secondaire">Rechercher</button>
+  </form>
+
+  <form method="post" action="index.php?page=preadmission_patient" novalidate>
     <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
 
     <div class="colonnes">

@@ -30,9 +30,15 @@ final class PreadmissionControleur
             $this->vuePatient($ref, $_POST, [], 'Session expirée, veuillez réessayer.', 400);
             return;
         }
-        if (($_POST['action'] ?? '') === 'annuler') {
-            Session::oublier(self::CLE_PATIENT);
-            Rendu::rediriger('accueil_secretaire');
+
+        switch ($_POST['action'] ?? '') {
+            case 'annuler':
+                Session::oublier(self::CLE_PATIENT);
+                Rendu::rediriger('accueil_secretaire');
+
+            case 'rechercher':
+                $this->rechercher($ref);
+                return;
         }
 
         [$donnees, $erreurs] = ValidationPreadmission::patient(
@@ -46,7 +52,25 @@ final class PreadmissionControleur
         Rendu::rediriger('preadmission_sejour');
     }
 
-    private function vuePatient(array $ref, array $valeurs, array $erreurs = [], ?string $erreur = null, int $code = 200): void
+    /** Recherche d'un patient déjà connu par son numéro de sécurité sociale : pré-remplit le formulaire. */
+    private function rechercher(array $ref): void
+    {
+        $nir = strtoupper(preg_replace('/[\s.\-]/u', '', (string) ($_POST['recherche'] ?? '')));
+        if (!preg_match('/^[12]\d{4}(\d{2}|2A|2B)\d{6}$/', $nir)) {
+            $this->vuePatient($ref, [], [], 'Recherche : saisissez les 13 chiffres du numéro de sécurité sociale.', 422);
+            return;
+        }
+        $patient = $this->dao->trouverPatientParNir($nir);
+        if ($patient === null) {
+            $this->vuePatient($ref, ['numero_securite_sociale' => $nir], [],
+                'Aucun patient avec ce numéro : remplissez le formulaire pour créer son dossier.');
+            return;
+        }
+        $this->vuePatient($ref, $patient, [], null, 200,
+            'Patient déjà connu : sa fiche est pré-remplie, vérifiez les informations avant de continuer.');
+    }
+
+    private function vuePatient(array $ref, array $valeurs, array $erreurs = [], ?string $erreur = null, int $code = 200, ?string $info = null): void
     {
         Rendu::vue('secretaire/preadmission_patient', [
             'utilisateur' => Session::utilisateur(),
@@ -55,6 +79,7 @@ final class PreadmissionControleur
             'valeurs'     => $valeurs,
             'erreurs'     => $erreurs,
             'erreur'      => $erreur,
+            'info'        => $info,
         ], $code);
     }
 
@@ -120,4 +145,5 @@ final class PreadmissionControleur
             'erreur'      => $erreur,
         ], $code);
     }
+
 }
