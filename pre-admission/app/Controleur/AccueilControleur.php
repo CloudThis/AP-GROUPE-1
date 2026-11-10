@@ -14,6 +14,7 @@ final class AccueilControleur
         Rendu::vue($dossier . '/accueil', [
             'utilisateur' => $utilisateur,
             'csrf'        => Session::jetonCsrf(),
+            'enregistree' => ctype_digit((string) ($_GET['enregistree'] ?? '')) ? (int) $_GET['enregistree'] : null,
         ]);
     }
 }

@@ -57,6 +57,23 @@ final class Session
         session_destroy();
     }
 
+    // ---- Données temporaires (ex. étape 1 d'un formulaire en plusieurs étapes) ----
+
+    public static function lire(string $cle): mixed
+    {
+        return $_SESSION['donnees'][$cle] ?? null;
+    }
+
+    public static function ecrire(string $cle, mixed $valeur): void
+    {
+        $_SESSION['donnees'][$cle] = $valeur;
+    }
+
+    public static function oublier(string $cle): void
+    {
+        unset($_SESSION['donnees'][$cle]);
+    }
+
     // ---- Protection CSRF des formulaires ----
 
     public static function jetonCsrf(): string

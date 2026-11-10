@@ -21,6 +21,9 @@ final class ControleAcces
         'accueil_medecin'       => Profil::MEDECIN,
         'accueil_administratif' => Profil::ADMINISTRATIF,
         'accueil_informaticien' => Profil::INFORMATICIEN,
+        // Création d'une pré-admission : secrétaire médicale uniquement
+        'preadmission_patient' => Profil::SECRETAIRE,
+        'preadmission_sejour'  => Profil::SECRETAIRE,
     ];
 
     public static function estProtegee(string $page): bool

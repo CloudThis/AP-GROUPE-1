@@ -37,6 +37,19 @@ final class ControleAccesTest extends TestCase
             ControleAcces::verifier(self::utilisateur(Profil::SECRETAIRE), 'accueil_medecin'));
     }
 
+    public function testCreationPreadmissionReserveeALaSecretaire(): void
+    {
+        foreach (['preadmission_patient', 'preadmission_sejour'] as $page) {
+            $this->assertTrue(ControleAcces::estProtegee($page), $page);
+            $this->assertSame(ControleAcces::NON_CONNECTE, ControleAcces::verifier(null, $page), $page);
+            foreach (Profil::cases() as $profil) {
+                $attendu = $profil === Profil::SECRETAIRE ? ControleAcces::AUTORISE : ControleAcces::INTERDIT;
+                $this->assertSame($attendu, ControleAcces::verifier(self::utilisateur($profil), $page),
+                    "{$profil->value} sur $page");
+            }
+        }
+    }
+
     public function testConnexionEtDeconnexionNeSontPasProtegees(): void
     {
         $this->assertFalse(ControleAcces::estProtegee('connexion'));

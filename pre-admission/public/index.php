@@ -11,10 +11,12 @@ require __DIR__ . '/../app/fonctions.php';
 use App\Controleur\AccueilControleur;
 use App\Controleur\ConnexionControleur;
 use App\Controleur\DeconnexionControleur;
+use App\Controleur\PreadmissionControleur;
 use App\Controleur\Rendu;
 use App\Controleur\Session;
 use App\Modele\Dao\CompteDaoPdo;
 use App\Modele\Dao\Database;
+use App\Modele\Dao\PreadmissionDaoPdo;
 use App\Modele\Service\AuthService;
 use App\Modele\Service\ControleAcces;
 
@@ -49,6 +51,20 @@ switch ($page) {
     case 'accueil_administratif':
     case 'accueil_informaticien':
         (new AccueilControleur())->afficher($page);
+        break;
+
+    case 'preadmission_patient':
+    case 'preadmission_sejour':
+        try {
+            $controleur = new PreadmissionControleur(new PreadmissionDaoPdo(Database::connexion()));
+            match ($page) {
+                'preadmission_patient' => $controleur->patient(),
+                'preadmission_sejour'  => $controleur->sejour(),
+            };
+        } catch (\PDOException $e) {
+            error_log('Base de données inaccessible : ' . $e->getMessage());
+            Rendu::vue('erreur500', [], 500);
+        }
         break;
 
     default:

@@ -1,4 +1,4 @@
-# Pré-admission LPFH — Authentification par profil (Sprint 3)
+# Pré-admission LPFH — Authentification et création d'une pré-admission (Sprint 3)
 
 Application web PHP 8 en MVC, sans framework, base MariaDB/MySQL (XAMPP).
 
@@ -68,13 +68,28 @@ La protection (session + profil) est alors automatique.
 ## Tests unitaires (PHPUnit)
 Une seule fois, dans le dossier du projet : `composer install`
 (Composer : https://getcomposer.org — ou dans PhpStorm/VS Code avec l'extension PHP).
-Puis : `vendor/bin/phpunit` (Windows : `vendor\bin\phpunit`) — 18 tests.
+Puis : `vendor/bin/phpunit` (Windows : `vendor\bin\phpunit`) — 19 tests.
+PHP doit avoir les extensions `pdo_mysql` et `pdo_sqlite` (c'est le cas du PHP de XAMPP : `C:\xampp\php\php.exe vendor\bin\phpunit`).
 
 | Test | Ce qui est vérifié |
 |---|---|
 | `AuthServiceTest` | connexion réussie des 4 profils + bonne page ; refus mauvais mot de passe, identifiant inconnu, compte désactivé, champs vides ; message générique |
 | `ControleAccesTest` | page protégée sans session → refus ; chaque profil n'accède qu'à son écran ; secrétaire → écran médecin interdit |
 | `CompteDaoPdoTest` | requête préparée sur une base SQLite en mémoire : compte trouvé, inconnu, habilitation expirée, tentative d'injection SQL sans effet |
+
+
+## Création d'une pré-admission (secrétaire médicale)
+Pages `?page=preadmission_patient` → `preadmission_sejour`, réservées au profil secrétaire
+(les autres profils reçoivent « Accès interdit », sans session : renvoi à la connexion).
+
+1. **Patient** : identité, coordonnées, couverture sociale, informations complémentaires.
+2. **Pré-admission** : hospitalisation (motif, type de séjour, service, praticien, date et heure) et personne de confiance.
+
+- Contrôles de saisie (champs obligatoires, formats) vérifiés par `ValidationPreadmission` ; en cas d'erreur, rien n'est enregistré.
+- **Premier enregistrement** en base avec des requêtes préparées (`PreadmissionDaoPdo`) : tables `patient` et `preadmission`.
+- Données administratives uniquement : le volet médical relève du profil médecin (sprint suivant).
+- Reste à faire (séance 8) : enregistrement de la couverture sociale et de la personne de confiance,
+  patient déjà connu, écran de confirmation, tests unitaires de la pré-admission.
 
 ## Les 5 points de contrôle (fiches de recette)
 | # | Action | Résultat attendu |
