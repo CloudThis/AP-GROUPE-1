@@ -39,7 +39,7 @@ final class ControleAccesTest extends TestCase
 
     public function testCreationPreadmissionReserveeALaSecretaire(): void
     {
-        foreach (['preadmission_patient', 'preadmission_sejour'] as $page) {
+        foreach (['preadmission_patient', 'preadmission_sejour', 'preadmission_confirmation'] as $page) {
             $this->assertTrue(ControleAcces::estProtegee($page), $page);
             $this->assertSame(ControleAcces::NON_CONNECTE, ControleAcces::verifier(null, $page), $page);
             foreach (Profil::cases() as $profil) {

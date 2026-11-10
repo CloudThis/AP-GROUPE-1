@@ -198,4 +198,24 @@ final class PreadmissionDaoPdo
         ]);
     }
 
+    // ------------------------------------------------------------ relecture
+
+    /** Résumé d'une pré-admission relu en base (écran de confirmation). */
+    public function resume(int $idPreadmission): ?array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT pa.id_preadmission, pa.statut, pa.motif_hospitalisation, pa.type_sejour,
+                    pa.date_prevue_admission, pa.heure_prevue_admission, pa.duree_prevue_nuits,
+                    p.civilite, p.nom_usage, p.prenom, p.date_naissance,
+                    s.nom_service, m.nom AS praticien_nom, m.prenom AS praticien_prenom
+             FROM preadmission pa
+             JOIN patient p   ON p.id_patient = pa.id_patient
+             JOIN service s   ON s.id_service = pa.id_service
+             JOIN personnel m ON m.id_personnel = pa.id_personnel_responsable
+             WHERE pa.id_preadmission = :id'
+        );
+        $requete->execute(['id' => $idPreadmission]);
+        $ligne = $requete->fetch(PDO::FETCH_ASSOC);
+        return $ligne === false ? null : $ligne;
+    }
 }

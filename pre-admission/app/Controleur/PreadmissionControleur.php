@@ -8,7 +8,7 @@ use App\Modele\Service\ValidationPreadmission;
  * CONTRÔLEUR de la création d'une pré-admission (profil secrétaire médicale).
  * Quand on arrive ici, le contrôleur frontal a DÉJÀ vérifié la session et le profil.
  *
- * Étape 1 « Patient » -> gardée en session -> étape 2 « Pré-admission » -> enregistrement.
+ * Étape 1 « Patient » -> gardée en session -> étape 2 « Pré-admission » -> enregistrement -> confirmation.
  */
 final class PreadmissionControleur
 {
@@ -123,7 +123,7 @@ final class PreadmissionControleur
         }
 
         Session::oublier(self::CLE_PATIENT);
-        Rendu::rediriger('accueil_secretaire', ['enregistree' => $id]);
+        Rendu::rediriger('preadmission_confirmation', ['id' => $id]);
     }
 
     private function vueSejour(array $ref, array $patient, array $valeurs, array $erreurs = [], ?string $erreur = null, int $code = 200): void
@@ -146,4 +146,20 @@ final class PreadmissionControleur
         ], $code);
     }
 
+    // ------------------------------------------------------------ confirmation
+
+    public function confirmation(): void
+    {
+        $id = $_GET['id'] ?? '';
+        $resume = is_string($id) && ctype_digit($id) ? $this->dao->resume((int) $id) : null;
+        if ($resume === null) {
+            Rendu::vue('erreur404', [], 404);
+            return;
+        }
+        Rendu::vue('secretaire/preadmission_confirmation', [
+            'utilisateur' => Session::utilisateur(),
+            'csrf'        => Session::jetonCsrf(),
+            'resume'      => $resume,
+        ]);
+    }
 }

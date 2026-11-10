@@ -5,9 +5,6 @@ require __DIR__ . '/../partials/haut.php';
 require __DIR__ . '/../partials/entete.php';
 ?>
 <main>
-  <?php if (!empty($enregistree)): ?>
-    <div class="message info" role="status">Pré-admission n° <?= e((string) $enregistree) ?> enregistrée.</div>
-  <?php endif; ?>
   <h1>Espace secrétaire médicale</h1>
   <p class="sous-titre">Création des pré-admissions (données administratives).</p>
   <a class="lien-bouton principal" href="index.php?page=preadmission_patient">Nouvelle pré-admission</a>

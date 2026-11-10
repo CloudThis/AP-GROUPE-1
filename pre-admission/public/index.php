@@ -55,11 +55,13 @@ switch ($page) {
 
     case 'preadmission_patient':
     case 'preadmission_sejour':
+    case 'preadmission_confirmation':
         try {
             $controleur = new PreadmissionControleur(new PreadmissionDaoPdo(Database::connexion()));
             match ($page) {
-                'preadmission_patient' => $controleur->patient(),
-                'preadmission_sejour'  => $controleur->sejour(),
+                'preadmission_patient'      => $controleur->patient(),
+                'preadmission_sejour'       => $controleur->sejour(),
+                'preadmission_confirmation' => $controleur->confirmation(),
             };
         } catch (\PDOException $e) {
             error_log('Base de données inaccessible : ' . $e->getMessage());
