@@ -6,9 +6,6 @@ use PDO;
 /**
  * Accès aux données de la création d'une pré-admission.
  * Uniquement des requêtes préparées : aucune saisie n'est concaténée dans le SQL.
- *
- * Premier enregistrement (séance 7) : le patient et sa pré-admission.
- * Reste à faire : couverture sociale, personne de confiance, patient déjà connu.
  */
 final class PreadmissionDaoPdo
 {
@@ -55,8 +52,9 @@ final class PreadmissionDaoPdo
     // ------------------------------------------------------------ enregistrement
 
     /**
-     * Enregistre le patient et sa pré-admission dans UNE transaction :
-     * si une requête échoue, rien n'est enregistré.
+     * Enregistre le dossier complet dans UNE transaction : patient, couverture sociale,
+     * pré-admission (liée au service et au praticien) et personne de confiance.
+     * Si une requête échoue, rien n'est enregistré.
      *
      * @param array $patient données validées de l'étape 1
      * @param array $sejour  données validées de l'étape 2
@@ -66,8 +64,10 @@ final class PreadmissionDaoPdo
     {
         $this->pdo->beginTransaction();
         try {
-            $idPatient = $this->creerPatient($patient);
+            $idPatient = $this->enregistrerPatient($patient);
+            $this->enregistrerCouverture($idPatient, $patient);
             $idPreadmission = $this->creerPreadmission($idPatient, $sejour, $idPersonnelSaisie, $statut);
+            $this->enregistrerPersonneDeConfiance($idPreadmission, $sejour);
             $this->pdo->commit();
             return $idPreadmission;
         } catch (\Throwable $erreur) {
@@ -76,7 +76,7 @@ final class PreadmissionDaoPdo
         }
     }
 
-    private function creerPatient(array $patient): int
+    private function enregistrerPatient(array $patient): int
     {
         $valeurs = [];
         foreach (self::COLONNES_PATIENT as $colonne) {
@@ -87,6 +87,35 @@ final class PreadmissionDaoPdo
         $marqueurs = implode(', ', array_map(fn($c) => ":$c", self::COLONNES_PATIENT));
         $this->pdo->prepare("INSERT INTO patient ($colonnes) VALUES ($marqueurs)")->execute($valeurs);
         return (int) $this->pdo->lastInsertId();
+    }
+
+    /** Organisme d'assurance maladie (obligatoire) et mutuelle (facultative) du patient. */
+    private function enregistrerCouverture(int $idPatient, array $patient): void
+    {
+        $this->pdo->prepare('DELETE FROM est_couvert_par WHERE id_patient = :id')->execute(['id' => $idPatient]);
+        $this->pdo->prepare(
+            'INSERT INTO est_couvert_par (id_patient, id_organisme, regime, exoneration_ald, date_fin_droits, date_lecture_vitale)
+             VALUES (:id_patient, :id_organisme, :regime, :exoneration_ald, :date_fin_droits, :date_lecture_vitale)'
+        )->execute([
+            'id_patient'          => $idPatient,
+            'id_organisme'        => $patient['id_organisme'],
+            'regime'              => $patient['regime'],
+            'exoneration_ald'     => $patient['exoneration_ald'] ?? null,
+            'date_fin_droits'     => $patient['date_fin_droits'] ?? null,
+            'date_lecture_vitale' => $patient['date_lecture_vitale'] ?? null,
+        ]);
+
+        $this->pdo->prepare('DELETE FROM est_affilie WHERE id_patient = :id')->execute(['id' => $idPatient]);
+        if (($patient['id_mutuelle'] ?? null) !== null) {
+            $this->pdo->prepare(
+                'INSERT INTO est_affilie (id_patient, id_mutuelle, numero_adherent)
+                 VALUES (:id_patient, :id_mutuelle, :numero_adherent)'
+            )->execute([
+                'id_patient'      => $idPatient,
+                'id_mutuelle'     => $patient['id_mutuelle'],
+                'numero_adherent' => $patient['numero_adherent'] ?? null,
+            ]);
+        }
     }
 
     private function creerPreadmission(int $idPatient, array $sejour, int $idPersonnelSaisie, string $statut): int
@@ -113,4 +142,28 @@ final class PreadmissionDaoPdo
         ]);
         return (int) $this->pdo->lastInsertId();
     }
+
+    private function enregistrerPersonneDeConfiance(int $idPreadmission, array $sejour): void
+    {
+        $this->pdo->prepare(
+            'INSERT INTO personne_contact (nom, prenom, telephone) VALUES (:nom, :prenom, :telephone)'
+        )->execute([
+            'nom'       => $sejour['contact_nom'],
+            'prenom'    => $sejour['contact_prenom'],
+            'telephone' => $sejour['contact_telephone'],
+        ]);
+        $idContact = (int) $this->pdo->lastInsertId();
+
+        $this->pdo->prepare(
+            'INSERT INTO designe (id_preadmission, id_contact, lien_patient, est_personne_confiance,
+                    est_personne_a_prevenir, formulaire_signe)
+             VALUES (:id_preadmission, :id_contact, :lien, 1, :a_prevenir, 0)'
+        )->execute([
+            'id_preadmission' => $idPreadmission,
+            'id_contact'      => $idContact,
+            'lien'            => $sejour['contact_lien'],
+            'a_prevenir'      => (int) !empty($sejour['contact_a_prevenir']),
+        ]);
+    }
+
 }
