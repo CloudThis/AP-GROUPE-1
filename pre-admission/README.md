@@ -68,7 +68,7 @@ La protection (session + profil) est alors automatique.
 ## Tests unitaires (PHPUnit)
 Une seule fois, dans le dossier du projet : `composer install`
 (Composer : https://getcomposer.org — ou dans PhpStorm/VS Code avec l'extension PHP).
-Puis : `vendor/bin/phpunit` (Windows : `vendor\bin\phpunit`) — 42 tests.
+Puis : `vendor/bin/phpunit` (Windows : `vendor\bin\phpunit`) — 43 tests.
 PHP doit avoir les extensions `pdo_mysql` et `pdo_sqlite` (c'est le cas du PHP de XAMPP : `C:\xampp\php\php.exe vendor\bin\phpunit`).
 
 | Test | Ce qui est vérifié |

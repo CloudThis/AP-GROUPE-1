@@ -64,3 +64,15 @@ label.radio, label.case { display: flex; align-items: center; gap: 8px; font-wei
 @media (max-width: 800px) {
   .colonnes, .ligne, .ligne-1-3, .ligne-3-1 { grid-template-columns: 1fr; }
 }
+
+/* ---- Tableau de bord : liste des pré-admissions ---- */
+.tableau-defilant { overflow-x: auto; }
+.tableau { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.tableau th, .tableau td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #d8e0ea; vertical-align: top; }
+.tableau th { color: #5b6b7d; font-size: 0.9rem; white-space: nowrap; }
+.tableau tbody tr:hover { background: #f3f6fa; }
+.tableau a { color: #1c4f8a; font-weight: 600; }
+.statut { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; background: #e6edf6; color: #1c4f8a; }
+.statut-brouillon { background: #eef0f3; color: #4a5766; }
+.statut-validee { background: #e9f5ec; color: #1f6b35; }
+.statut-rejetee { background: #fdecec; color: #a12622; }

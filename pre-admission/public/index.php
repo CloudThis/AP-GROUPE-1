@@ -46,19 +46,20 @@ switch ($page) {
         (new DeconnexionControleur())->deconnecter();
         break;
 
-    case 'accueil_secretaire':
     case 'accueil_medecin':
     case 'accueil_administratif':
     case 'accueil_informaticien':
         (new AccueilControleur())->afficher($page);
         break;
 
+    case 'accueil_secretaire':          // tableau de bord : liste des pré-admissions
     case 'preadmission_patient':
     case 'preadmission_sejour':
     case 'preadmission_confirmation':
         try {
             $controleur = new PreadmissionControleur(new PreadmissionDaoPdo(Database::connexion()));
             match ($page) {
+                'accueil_secretaire'        => $controleur->tableauDeBord(),
                 'preadmission_patient'      => $controleur->patient(),
                 'preadmission_sejour'       => $controleur->sejour(),
                 'preadmission_confirmation' => $controleur->confirmation(),

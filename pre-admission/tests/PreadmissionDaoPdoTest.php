@@ -133,6 +133,25 @@ final class PreadmissionDaoPdoTest extends TestCase
         $this->assertNull($this->dao->trouverPatientParNir("' OR '1'='1"));
     }
 
+    public function testTableauDeBordListeLesPreadmissionsLaPlusRecenteEnPremier(): void
+    {
+        $this->assertSame([], $this->dao->dernieres());            // base vide : liste vide
+
+        $premiere = $this->dao->enregistrer($this->patient, $this->sejour, 1, PreadmissionDaoPdo::STATUT_BROUILLON);
+        $seconde  = $this->dao->enregistrer($this->patient, ['motif_hospitalisation' => 'Second séjour'] + $this->sejour,
+            1, PreadmissionDaoPdo::STATUT_EN_ATTENTE);
+
+        $liste = $this->dao->dernieres();
+        $this->assertCount(2, $liste);
+        $this->assertEquals($seconde, $liste[0]['id_preadmission']);   // la plus récente en premier
+        $this->assertEquals($premiere, $liste[1]['id_preadmission']);
+        $this->assertSame('Second séjour', $liste[0]['motif_hospitalisation']);
+        $this->assertSame('DUPONT', $liste[0]['nom_usage']);
+        $this->assertSame('Chirurgie digestive', $liste[0]['nom_service']);
+        $this->assertSame('BROUILLON', $liste[1]['statut']);
+        $this->assertCount(1, $this->dao->dernieres(1));             // limite respectée
+    }
+
     public function testPraticiensSontLesMedecinsActifs(): void
     {
         $praticiens = $this->dao->referentiels()['praticiens'];

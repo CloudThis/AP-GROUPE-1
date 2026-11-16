@@ -218,4 +218,22 @@ final class PreadmissionDaoPdo
         $ligne = $requete->fetch(PDO::FETCH_ASSOC);
         return $ligne === false ? null : $ligne;
     }
+
+    /** Dernières pré-admissions saisies, la plus récente en premier (tableau de bord de la secrétaire). */
+    public function dernieres(int $limite = 50): array
+    {
+        $requete = $this->pdo->prepare(
+            'SELECT pa.id_preadmission, pa.statut, pa.date_saisie, pa.motif_hospitalisation, pa.type_sejour,
+                    pa.date_prevue_admission, pa.heure_prevue_admission,
+                    p.civilite, p.nom_usage, p.prenom, s.nom_service
+             FROM preadmission pa
+             JOIN patient p ON p.id_patient = pa.id_patient
+             JOIN service s ON s.id_service = pa.id_service
+             ORDER BY pa.date_saisie DESC, pa.id_preadmission DESC
+             LIMIT :limite'
+        );
+        $requete->bindValue('limite', $limite, PDO::PARAM_INT);
+        $requete->execute();
+        return $requete->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

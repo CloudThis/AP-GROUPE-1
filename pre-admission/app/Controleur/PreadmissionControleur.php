@@ -146,6 +146,18 @@ final class PreadmissionControleur
         ], $code);
     }
 
+    // ------------------------------------------------------------ tableau de bord
+
+    /** Accueil de la secrétaire : liste des dernières pré-admissions saisies. */
+    public function tableauDeBord(): void
+    {
+        Rendu::vue('secretaire/accueil', [
+            'utilisateur'   => Session::utilisateur(),
+            'csrf'          => Session::jetonCsrf(),
+            'preadmissions' => $this->dao->dernieres(),
+        ]);
+    }
+
     // ------------------------------------------------------------ confirmation
 
     public function confirmation(): void
