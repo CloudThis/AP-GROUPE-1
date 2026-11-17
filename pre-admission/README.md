@@ -6,7 +6,9 @@ Application web PHP 8 en MVC, sans framework, base MariaDB/MySQL (XAMPP).
 1. Copier le dossier du projet dans `C:\xampp\htdocs\pre-admission`.
 2. Démarrer **Apache** et **MySQL** dans XAMPP.
 3. Dans phpMyAdmin (*Importer*), importer `bdd/clinique_lfph_v2.sql`.
-4. Vérifier `config/config.php` (avec XAMPP : `root` sans mot de passe).
+4. Copier `config/config.php.exemple` en `config/config.php` et y mettre le mot de passe du compte
+   applicatif `preadmission_app` (la création du compte est indiquée dans le fichier).
+   `config/config.php` n'est pas versionné : aucun mot de passe ne va sur le dépôt.
 5. Ouvrir **http://localhost/pre-admission/**
 
 Comptes de test : `secretaire / Secret2026!`, `medecin / Medecin2026!`,
@@ -38,7 +40,7 @@ pre-admission/
 │   │   └── partials/             haut, bas, entête avec bouton de déconnexion
 │   ├── autoload.php
 │   └── fonctions.php             e() : échappement HTML (anti-XSS)
-├── config/config.php             paramètres de la base
+├── config/config.php.exemple     modèle des paramètres de la base (à copier en config.php)
 ├── bdd/clinique_lfph_v2.sql      script de la base + 4 comptes de test
 └── tests/                        tests unitaires PHPUnit
 ```

@@ -1,0 +1,16 @@
+<?php
+// Modèle de configuration de la base — à copier en config/config.php sur chaque environnement.
+// config/config.php n'est PAS versionné : aucun mot de passe ne doit aller sur le dépôt.
+//
+// L'application se connecte avec le compte applicatif dédié, jamais avec root.
+// Création du compte (en root, après l'import de bdd/clinique_lfph_v2.sql) :
+//   CREATE USER 'preadmission_app'@'localhost' IDENTIFIED BY '...';
+//   GRANT SELECT, INSERT, UPDATE, DELETE ON clinique_lfph.* TO 'preadmission_app'@'localhost';
+//   FLUSH PRIVILEGES;
+return [
+    'db' => [
+        'dsn'      => 'mysql:host=localhost;port=3306;dbname=clinique_lfph;charset=utf8mb4',
+        'user'     => 'preadmission_app',
+        'password' => 'A_REMPLIR',
+    ],
+];
