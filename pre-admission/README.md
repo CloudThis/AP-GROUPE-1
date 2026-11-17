@@ -98,12 +98,14 @@ réservées au profil secrétaire (les autres profils reçoivent « Accès inter
 - Pas encore fait (maquette, écran 2) : prise de rendez-vous et pièces justificatives.
 
 ## Les 5 points de contrôle (fiches de recette)
+Sur l'environnement de test : **http://192.168.20.22/slam/pre-admission/public/**
+
 | # | Action | Résultat attendu |
 |---|---|---|
-| 1 | Ouvrir http://localhost/pre-admission/ | Formulaire identifiant / mot de passe |
+| 1 | Ouvrir http://192.168.20.22/slam/pre-admission/public/ | Formulaire identifiant / mot de passe |
 | 2 | Se connecter avec chacun des 4 comptes | Chacun arrive sur son espace (titre + bandeau du profil) |
 | 3 | `secretaire` + mauvais mot de passe | « Identifiant ou mot de passe incorrect. » |
 | 4 | Bouton « Se déconnecter » | Retour à la connexion avec « Vous êtes déconnecté. » |
-| 5 | Fenêtre privée : `.../public/index.php?page=accueil_secretaire` | Renvoi vers la page de connexion |
+| 5 | Fenêtre privée : http://192.168.20.22/slam/pre-admission/public/index.php?page=accueil_secretaire | Renvoi vers la page de connexion |
 
-Bonus : connecté en secrétaire, ouvrir `?page=accueil_medecin` → « Accès interdit » (403).
+Bonus : connecté en secrétaire, ouvrir http://192.168.20.22/slam/pre-admission/public/index.php?page=accueil_medecin → « Accès interdit » (403).
