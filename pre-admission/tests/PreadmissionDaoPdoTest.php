@@ -158,4 +158,18 @@ final class PreadmissionDaoPdoTest extends TestCase
         $this->assertCount(1, $praticiens);                         // ni la secrétaire, ni le compte désactivé
         $this->assertSame('LEROY', $praticiens[0]['nom']);
     }
+
+    public function testServicesInternesNonProposesALaPreadmission(): void
+    {
+        $this->pdo->exec("INSERT INTO service VALUES (3, 'Anesthésie'), (5, 'Administration'), (6, 'Systèmes d''information')");
+
+        $services = array_column($this->dao->referentiels()['services'], 'nom');
+        $this->assertSame(['Anesthésie', 'Cardiologie', 'Chirurgie digestive'], $services);
+
+        // Un service interne envoyé à la main est refusé par le contrôle côté serveur
+        $ids = array_column($this->dao->referentiels()['services'], 'id');
+        $erreurs = ValidationPreadmission::sejour(['id_service' => '5'] + ValidationPreadmissionTest::sejourValide(),
+            $ids, [2], new DateTimeImmutable('2026-11-10'))[1];
+        $this->assertArrayHasKey('id_service', $erreurs);
+    }
 }
