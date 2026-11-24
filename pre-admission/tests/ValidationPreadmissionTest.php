@@ -93,6 +93,15 @@ final class ValidationPreadmissionTest extends TestCase
         $this->assertArrayHasKey('date_naissance', $this->erreursPatient(['date_naissance' => '2030-01-01']));
     }
 
+    public function testDateDeNaissanceTropAncienneRefusee(): void
+    {
+        // Aujourd'hui = 10/11/2026, âge maximal 120 ans : limite au 10/11/1906
+        $this->assertArrayHasKey('date_naissance', $this->erreursPatient(['date_naissance' => '1850-01-01']));
+        $this->assertArrayHasKey('date_naissance', $this->erreursPatient(['date_naissance' => '1906-11-09']));
+        $this->assertSame([], $this->erreursPatient(['date_naissance' => '1906-11-10']));   // pile 120 ans : accepté
+        $this->assertSame([], $this->erreursPatient(['date_naissance' => '2026-11-10']));   // né aujourd'hui : accepté
+    }
+
     public function testTelephoneInvalideRefuse(): void
     {
         $this->assertArrayHasKey('tel_portable', $this->erreursPatient(['tel_portable' => '0412345678']));  // pas un portable

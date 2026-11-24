@@ -20,12 +20,6 @@ final class PreadmissionDaoPdo
         'langue', 'besoin_interprete', 'consentement_sms', 'consentement_dmp', 'opposition_presence',
     ];
 
-    /**
-     * Services internes, sans lien avec une pré-admission : ils existent seulement pour y rattacher
-     * le personnel (département administratif, informaticien). Ils ne sont pas proposés à la secrétaire.
-     */
-    public const SERVICES_HORS_PREADMISSION = ['Administration', "Systèmes d'information"];
-
     public function __construct(private readonly PDO $pdo) {}
 
     // ------------------------------------------------------------ listes déroulantes
@@ -33,13 +27,6 @@ final class PreadmissionDaoPdo
     /** @return array{organismes: array, mutuelles: array, services: array, praticiens: array} */
     public function referentiels(): array
     {
-        $services = $this->pdo->prepare(
-            'SELECT id_service AS id, nom_service AS nom FROM service
-             WHERE nom_service NOT IN (' . implode(', ', array_fill(0, count(self::SERVICES_HORS_PREADMISSION), '?')) . ')
-             ORDER BY nom_service'
-        );
-        $services->execute(self::SERVICES_HORS_PREADMISSION);
-
         return [
             'organismes' => $this->pdo->query(
                 'SELECT id_organisme AS id, nom_organisme AS nom, code_caisse FROM organisme_amo ORDER BY nom_organisme'
@@ -47,7 +34,11 @@ final class PreadmissionDaoPdo
             'mutuelles' => $this->pdo->query(
                 'SELECT id_mutuelle AS id, nom_mutuelle AS nom FROM mutuelle ORDER BY nom_mutuelle'
             )->fetchAll(PDO::FETCH_ASSOC),
-            'services' => $services->fetchAll(PDO::FETCH_ASSOC),
+            // Seuls les services médicaux : les services internes (est_medical = 0) servent
+            // uniquement à rattacher le personnel et ne concernent pas une pré-admission.
+            'services' => $this->pdo->query(
+                'SELECT id_service AS id, nom_service AS nom FROM service WHERE est_medical = 1 ORDER BY nom_service'
+            )->fetchAll(PDO::FETCH_ASSOC),
             // Praticiens = personnel actif qui possède l'habilitation MEDECIN (rien de codé en dur)
             'praticiens' => $this->pdo->query(
                 "SELECT p.id_personnel AS id, p.nom, p.prenom

@@ -15,7 +15,7 @@ final class PreadmissionDaoPdoTest extends TestCase
     {
         $this->pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
         $this->pdo->exec('PRAGMA foreign_keys = ON');
-        $this->pdo->exec('CREATE TABLE service (id_service INTEGER PRIMARY KEY, nom_service TEXT)');
+        $this->pdo->exec('CREATE TABLE service (id_service INTEGER PRIMARY KEY, nom_service TEXT, est_medical INTEGER NOT NULL DEFAULT 1)');
         $this->pdo->exec('CREATE TABLE organisme_amo (id_organisme INTEGER PRIMARY KEY, nom_organisme TEXT, code_caisse TEXT)');
         $this->pdo->exec('CREATE TABLE mutuelle (id_mutuelle INTEGER PRIMARY KEY, nom_mutuelle TEXT)');
         $this->pdo->exec('CREATE TABLE personnel (id_personnel INTEGER PRIMARY KEY, nom TEXT, prenom TEXT, compte_actif INTEGER)');
@@ -41,7 +41,7 @@ final class PreadmissionDaoPdoTest extends TestCase
         $this->pdo->exec('CREATE TABLE designe (id_preadmission INTEGER REFERENCES preadmission, id_contact INTEGER REFERENCES personne_contact,
             lien_patient TEXT, est_personne_confiance INTEGER, est_personne_a_prevenir INTEGER, formulaire_signe INTEGER)');
 
-        $this->pdo->exec("INSERT INTO service VALUES (1, 'Chirurgie digestive'), (2, 'Cardiologie')");
+        $this->pdo->exec("INSERT INTO service VALUES (1, 'Chirurgie digestive', 1), (2, 'Cardiologie', 1)");
         $this->pdo->exec("INSERT INTO organisme_amo VALUES (1, 'CPAM du Rhône', '691'), (2, 'CPAM de Paris', '751')");
         $this->pdo->exec("INSERT INTO mutuelle VALUES (1, 'Harmonie Mutuelle'), (2, 'MGEN')");
         $this->pdo->exec("INSERT INTO habilitation VALUES (1, 'SECRETAIRE'), (2, 'MEDECIN')");
@@ -161,7 +161,8 @@ final class PreadmissionDaoPdoTest extends TestCase
 
     public function testServicesInternesNonProposesALaPreadmission(): void
     {
-        $this->pdo->exec("INSERT INTO service VALUES (3, 'Anesthésie'), (5, 'Administration'), (6, 'Systèmes d''information')");
+        // est_medical = 0 : services internes, quel que soit leur nom
+        $this->pdo->exec("INSERT INTO service VALUES (3, 'Anesthésie', 1), (5, 'Administration', 0), (6, 'Systèmes d''information', 0), (7, 'Service renommé', 0)");
 
         $services = array_column($this->dao->referentiels()['services'], 'nom');
         $this->assertSame(['Anesthésie', 'Cardiologie', 'Chirurgie digestive'], $services);
