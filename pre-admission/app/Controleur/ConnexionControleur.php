@@ -19,6 +19,7 @@ final class ConnexionControleur
         Rendu::vue('connexion', [
             'csrf'        => Session::jetonCsrf(),
             'deconnecte'  => isset($_GET['deconnecte']),
+            'expiree'     => Session::vientDExpirer(),
         ]);
     }
 

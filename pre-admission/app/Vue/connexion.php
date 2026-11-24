@@ -10,6 +10,10 @@ require __DIR__ . '/partials/haut.php';
 
     <?php if (!empty($erreur)): ?>
       <div class="message erreur" role="alert"><?= e($erreur) ?></div>
+    <?php elseif (!empty($expiree)): ?>
+      <div class="message info" role="status">
+        Vous avez été déconnecté après <?= e((string) intdiv(App\Controleur\Session::DUREE_MAX, 60)) ?> minutes d'inactivité.
+      </div>
     <?php elseif (!empty($deconnecte)): ?>
       <div class="message info">Vous êtes déconnecté.</div>
     <?php endif; ?>

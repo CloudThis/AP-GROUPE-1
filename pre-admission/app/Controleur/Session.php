@@ -9,13 +9,17 @@ final class Session
     private const CLE_UTILISATEUR = 'utilisateur';
     private const CLE_ACTIVITE    = 'derniere_activite';
     private const CLE_CSRF        = 'csrf';
-    private const DUREE_MAX       = 1800; // 30 min d'inactivité -> déconnexion
+    private const CLE_EXPIREE     = 'session_expiree';
+    public const DUREE_MAX        = 1800; // 30 min d'inactivité -> déconnexion automatique
 
     public static function demarrer(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             return;
         }
+        // PHP efface les sessions inactives après 24 min par défaut : on l'aligne sur DUREE_MAX
+        // pour que la déconnexion se fasse bien au bout de 30 min, ni avant ni après.
+        ini_set('session.gc_maxlifetime', (string) self::DUREE_MAX);
         session_name('PREADMISSION');
         session_set_cookie_params([
             'httponly' => true,                       // cookie illisible par JavaScript
@@ -27,10 +31,22 @@ final class Session
         // Expiration après inactivité
         $derniere = $_SESSION[self::CLE_ACTIVITE] ?? null;
         if ($derniere !== null && time() - $derniere > self::DUREE_MAX) {
+            $etaitConnecte = isset($_SESSION[self::CLE_UTILISATEUR]);
             self::detruire();
             session_start();
+            if ($etaitConnecte) {
+                $_SESSION[self::CLE_EXPIREE] = true;   // message affiché sur la page de connexion
+            }
         }
         $_SESSION[self::CLE_ACTIVITE] = time();
+    }
+
+    /** Vrai une seule fois après une déconnexion pour inactivité (le message n'est affiché qu'une fois). */
+    public static function vientDExpirer(): bool
+    {
+        $expiree = !empty($_SESSION[self::CLE_EXPIREE]);
+        unset($_SESSION[self::CLE_EXPIREE]);
+        return $expiree;
     }
 
     public static function utilisateur(): ?Utilisateur

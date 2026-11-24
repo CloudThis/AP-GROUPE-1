@@ -60,11 +60,11 @@ $mutuelles = array_column($ref['mutuelles'], 'nom', 'id');
           <?= champ('prenom', 'Prénom(s)', $valeurs, $erreurs, ['obligatoire' => true, 'attributs' => ['maxlength' => 100, 'autocomplete' => 'off']]) ?>
         </div>
         <div class="ligne">
-          <?= champ('date_naissance', 'Date de naissance', $valeurs, $erreurs, ['type' => 'date', 'obligatoire' => true, 'attributs' => ['max' => date('Y-m-d')]]) ?>
+          <?= champ('date_naissance', 'Date de naissance', $valeurs, $erreurs, ['type' => 'date', 'obligatoire' => true, 'attributs' => ['min' => V::naissanceLaPlusAncienne()->format('Y-m-d'), 'max' => date('Y-m-d')]]) ?>
           <?= boutons_radio('sexe', 'Sexe administratif', V::SEXES, $valeurs, $erreurs, true) ?>
         </div>
         <div class="ligne">
-          <?= champ('lieu_naissance', 'Lieu de naissance', $valeurs, $erreurs, ['attributs' => ['maxlength' => 100]]) ?>
+          <?= champ('lieu_naissance', 'Ville de naissance', $valeurs, $erreurs, ['attributs' => ['maxlength' => 100]]) ?>
           <?= champ('nationalite', 'Nationalité', $valeurs, $erreurs, ['attributs' => ['maxlength' => 50]]) ?>
         </div>
         <div class="ligne ligne-3-1">
@@ -112,7 +112,7 @@ $mutuelles = array_column($ref['mutuelles'], 'nom', 'id');
           <?= champ('profession', 'Profession', $valeurs, $erreurs, ['attributs' => ['maxlength' => 100]]) ?>
         </div>
         <div class="ligne">
-          <?= champ('langue', 'Langue parlée', $valeurs, $erreurs, ['attributs' => ['maxlength' => 50]]) ?>
+          <?= champ('langue', 'Langue maternelle', $valeurs, $erreurs, ['attributs' => ['maxlength' => 50]]) ?>
           <div class="champ"><span class="faux-libelle">Interprète</span><?= case_a_cocher('besoin_interprete', 'Besoin d\'un interprète', $valeurs) ?></div>
         </div>
         <fieldset class="champ">

@@ -22,6 +22,14 @@ final class ValidationPreadmission
         'HOSPITALISATION_COMPLETE' => 'Hospitalisation complète',
     ];
     public const DUREE_MAX_NUITS = 90;
+    /** Âge maximal accepté pour un patient (retour du Product Owner : refuser les dates trop anciennes). */
+    public const AGE_MAX = 120;
+
+    /** Date de naissance la plus ancienne acceptée : aujourd'hui moins AGE_MAX ans. */
+    public static function naissanceLaPlusAncienne(?DateTimeImmutable $aujourdhui = null): DateTimeImmutable
+    {
+        return ($aujourdhui ?? new DateTimeImmutable('today'))->modify('-' . self::AGE_MAX . ' years');
+    }
 
     /**
      * Étape 1 : identité, coordonnées, couverture sociale, informations complémentaires.
@@ -47,6 +55,8 @@ final class ValidationPreadmission
         $naissance = self::date($saisie, 'date_naissance', true, $e);
         if ($naissance !== null && $naissance > $aujourdhui) {
             $e['date_naissance'] = 'La date de naissance ne peut pas être dans le futur.';
+        } elseif ($naissance !== null && $naissance < self::naissanceLaPlusAncienne($aujourdhui)) {
+            $e['date_naissance'] = 'Date de naissance trop ancienne : ' . self::AGE_MAX . ' ans maximum.';
         }
         $d['date_naissance'] = $naissance?->format('Y-m-d');
 

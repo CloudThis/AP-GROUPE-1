@@ -34,8 +34,10 @@ final class PreadmissionDaoPdo
             'mutuelles' => $this->pdo->query(
                 'SELECT id_mutuelle AS id, nom_mutuelle AS nom FROM mutuelle ORDER BY nom_mutuelle'
             )->fetchAll(PDO::FETCH_ASSOC),
+            // Seuls les services médicaux : les services internes (est_medical = 0) servent
+            // uniquement à rattacher le personnel et ne concernent pas une pré-admission.
             'services' => $this->pdo->query(
-                'SELECT id_service AS id, nom_service AS nom FROM service ORDER BY nom_service'
+                'SELECT id_service AS id, nom_service AS nom FROM service WHERE est_medical = 1 ORDER BY nom_service'
             )->fetchAll(PDO::FETCH_ASSOC),
             // Praticiens = personnel actif qui possède l'habilitation MEDECIN (rien de codé en dur)
             'praticiens' => $this->pdo->query(

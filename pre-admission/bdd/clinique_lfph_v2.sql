@@ -25,7 +25,8 @@ USE clinique_lfph;
 CREATE TABLE service (
   id_service     INT AUTO_INCREMENT PRIMARY KEY,
   nom_service    VARCHAR(100) NOT NULL,
-  localisation   VARCHAR(150) NULL
+  localisation   VARCHAR(150) NULL,
+  est_medical    TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = service médical proposé dans la pré-admission, 0 = service interne'
 ) ENGINE=InnoDB;
 
 CREATE TABLE chambre (
@@ -365,13 +366,13 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- 5. JEU DE DONNÉES DE TEST
 -- =====================================================================
 
-INSERT INTO service (id_service, nom_service, localisation) VALUES
- (1, 'Chirurgie digestive',     'Bâtiment A — 1er étage'),
- (2, 'Cardiologie',             'Bâtiment A — 2e étage'),
- (3, 'Orthopédie',              'Bâtiment B — 1er étage'),
- (4, 'Anesthésie',              'Bâtiment B — 2e étage'),
- (5, 'Administration',          'Bâtiment C — RDC'),
- (6, 'Systèmes d''information', 'Bâtiment C — sous-sol');
+INSERT INTO service (id_service, nom_service, localisation, est_medical) VALUES
+ (1, 'Chirurgie digestive',     'Bâtiment A — 1er étage', 1),
+ (2, 'Cardiologie',             'Bâtiment A — 2e étage',  1),
+ (3, 'Orthopédie',              'Bâtiment B — 1er étage', 1),
+ (4, 'Anesthésie',              'Bâtiment B — 2e étage',  1),
+ (5, 'Administration',          'Bâtiment C — RDC',       0),
+ (6, 'Systèmes d''information', 'Bâtiment C — sous-sol',  0);
 
 INSERT INTO chambre (numero_chambre, type_chambre, nb_lits, id_service) VALUES
  ('A101', 'Individuelle', 1, 1), ('A102', 'Double', 2, 1),
